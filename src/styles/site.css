@@ -203,7 +203,7 @@ header.site-header.scrolled { background:rgba(250,246,239,.97); box-shadow:0 4px
 .filter-btn.active, .filter-btn:hover { background:var(--maroon); color:#fff; border-color:var(--maroon); }
 .filter-btn.is-reel { border-color:var(--gold); color:var(--maroon); }
 .filter-btn.is-reel.active, .filter-btn.is-reel:hover { background:var(--gold); border-color:var(--gold); color:#fff; }
-.nav-cta a.btn-gold {
+ a.btn-gold {
   color: #ffffff !important;
 }
 .gallery-tile { border-radius:var(--radius-sm); overflow:hidden; position:relative; cursor:pointer; box-shadow:0 8px 24px rgba(74,14,26,.06); background:#f5f0e8; }
