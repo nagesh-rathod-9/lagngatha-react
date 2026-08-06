@@ -12,7 +12,7 @@ function OrbitLogo({ collapsed }: { collapsed: boolean }) {
     <div className="flex items-center gap-3 px-4 py-5 border-b border-orbit-border">
       <div className="relative flex-shrink-0">
         <div className="w-12 h-12 rounded-lg bg-orbit-white flex items-center justify-center glow-primary">
-          <img src="https://lagngatha.vercel.app/lagngatha.png" alt="lagngatha" />
+          <img src="/logo.png" alt="lagngatha" />
         </div>
       </div>
       <AnimatePresence>
