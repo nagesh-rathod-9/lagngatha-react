@@ -5,6 +5,34 @@ import type { ContactData } from '../../data/siteContent'
 
 const SERVICES = ['Wedding Photography', 'Pre-Wedding Shoot', 'Portrait Session', 'Fashion Shoot', 'Children Photography', 'Cinematic Film']
 
+// Strips spaces/dashes and ensures the number has India's country code for wa.me
+function toWhatsappNumber(phone: string) {
+  const digits = phone.replace(/[^0-9]/g, '')
+  return digits.startsWith('91') ? digits : `91${digits}`
+}
+
+function buildWhatsappMessage(payload: Record<string, string>) {
+  const lines = [
+    '✨ *New Enquiry — LagnaGatha Studio* ✨',
+    '',
+    `👤 *Name:* ${payload.name}`,
+    `📞 *Phone:* ${payload.phone}`,
+    `🎯 *Service:* ${payload.service}`,
+  ]
+
+  if (payload.eventDetails) {
+    lines.push(`📅 *Event:* ${payload.eventDetails}`)
+  }
+
+  if (payload.message) {
+    lines.push('', '📝 *Their story:*', payload.message)
+  }
+
+  lines.push('', '_Sent via lagnagatha.com contact form_')
+
+  return lines.join('\n')
+}
+
 export function Contact({ data, onSubmit }: { data: ContactData; onSubmit?: (payload: Record<string, string>) => void }) {
   const [submitted, setSubmitted] = useState(false)
 
@@ -12,7 +40,13 @@ export function Contact({ data, onSubmit }: { data: ContactData; onSubmit?: (pay
     e.preventDefault()
     const form = new FormData(e.currentTarget)
     const payload = Object.fromEntries(form.entries()) as Record<string, string>
+
     onSubmit?.(payload)
+
+    const waNumber = toWhatsappNumber(data.phone)
+    const waMessage = encodeURIComponent(buildWhatsappMessage(payload))
+    window.open(`https://wa.me/${waNumber}?text=${waMessage}`, '_blank', 'noopener,noreferrer')
+
     setSubmitted(true)
     e.currentTarget.reset()
     setTimeout(() => setSubmitted(false), 4000)

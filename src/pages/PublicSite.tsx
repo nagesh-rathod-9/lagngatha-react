@@ -20,18 +20,6 @@ import type {
   HeroData, FeaturedStory, GalleryCategory, Reel, FeatureItem, PackageTier, AboutData, ContactData,
 } from '../data/siteContent'
 
-/**
- * Public-facing site, rebuilt from the static HTML as componentized React.
- *
- * Each section reads from localStorage using the same convention
- * AdminTeamSection.tsx already uses (STORAGE_KEY + a "*-updated" event),
- * so edits made in your Admin*Section.tsx panels show up here automatically.
- *
- * >>> The storage keys/event names below are ASSUMPTIONS based on the
- * >>> 'team_section_data' / 'team-section-updated' pattern from
- * >>> AdminTeamSection.tsx. Open each of your other Admin*Section.tsx files
- * >>> and confirm (or change) the keys to match exactly.
- */
 export function PublicSite() {
   const hero = useSectionStorage<HeroData>('hero_section_data', 'hero-section-updated', heroDefaults)
   const featured = useSectionStorage<{ items: FeaturedStory[] }>('featured_section_data', 'featured-section-updated', { items: featuredDefaults }).items
@@ -51,7 +39,7 @@ export function PublicSite() {
           <FeaturedCarousel items={featured} />
           <Gallery categories={gallery.categories} reels={gallery.reels} />
           <Features items={features} />
-          <Packages tiers={packages} />
+          <Packages tiers={packages} phone={contact.phone} />
           <About data={about} />
           <TeamSection />
           <Contact
