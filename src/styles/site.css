@@ -77,6 +77,10 @@
 .btn-maroon { background:var(--gold); color:#fff; border-color:var(--gold); }
 .btn-maroon:hover { background:var(--maroon); border-color:var(--maroon); transform:translateY(-2px); box-shadow:0 16px 34px var(--gold-glow); }
 
+.font-tillana {
+  font-family: 'Tillana', 'Noto Serif Devanagari', serif;
+  font-weight: 700; /* adjust to taste — Tillana supports 400–800 */
+}
 /* ===== HEADER ===== */
 header.site-header { position:fixed; top:0; left:0; right:0; z-index:1050; background:rgba(250,246,239,.86); backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px); border-bottom:1px solid rgba(36,26,22,.05); transition:.4s var(--ease); }
 header.site-header.scrolled { background:rgba(250,246,239,.97); box-shadow:0 4px 30px rgba(74,14,26,.05); }
@@ -179,14 +183,90 @@ header.site-header.scrolled { background:rgba(250,246,239,.97); box-shadow:0 4px
 .carousel-wrap { position:relative; }
 .carousel-track { display:flex; gap:22px; overflow-x:auto; scroll-snap-type:x mandatory; scroll-behavior:smooth; padding:6px 6px 22px; -ms-overflow-style:none; scrollbar-width:none; }
 .carousel-track::-webkit-scrollbar { display:none; }
-.feature-slide { scroll-snap-align:start; flex:0 0 82%; position:relative; border-radius:var(--radius); overflow:hidden; aspect-ratio:16/10; box-shadow:var(--shadow); }
-@media(min-width:576px){ .feature-slide{ flex:0 0 60%; } }
-@media(min-width:992px){ .feature-slide{ flex:0 0 44%; aspect-ratio:16/10; } }
-.feature-slide img { width:100%; height:100%; object-fit:cover; transition:transform .8s var(--ease); }
-.feature-slide:hover img { transform:scale(1.06); }
-.feature-slide .fs-info { position:absolute; inset:auto 0 0 0; padding:28px 26px; color:#fff; background:linear-gradient(to top, rgba(20,10,8,.82), transparent 65%); }
-.feature-slide .fs-tag { font-size:.62rem; letter-spacing:.16em; text-transform:uppercase; color:var(--gold-light); font-weight:600; }
-.feature-slide .fs-title { font-family:'Playfair Display',serif; font-size:1.4rem; margin-top:4px; }
+.feature-slide {
+  scroll-snap-align: start;
+  flex: 0 0 82%;               /* default for very small screens */
+  position: relative;
+  border-radius: var(--radius, 12px);
+  overflow: hidden;
+  aspect-ratio: 16 / 16;       /* consistent height/width ratio */
+  box-shadow: var(--shadow, 0 8px 30px rgba(0,0,0,0.12));
+  background: #1a1a1a;         /* fallback background while media loads */
+}
+
+/* ---- Shared media (images & videos) ---- */
+.slide-media {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;           /* crops to fill the container, centered */
+  display: block;
+  transition: transform 0.8s var(--ease, ease);
+}
+
+/* Hover zoom only for images – but we keep it for video too if you like */
+.feature-slide:hover .slide-media {
+  transform: scale(1.06);
+}
+
+/* ---- Info overlay ---- */
+.feature-slide .fs-info {
+  position: absolute;
+  inset: auto 0 0 0;
+  padding: 20px 18px;          /* slightly smaller on mobile */
+  color: #fff;
+  background: linear-gradient(to top, rgba(20, 10, 8, 0.82), transparent 65%);
+  pointer-events: none;        /* so clicks pass through to video controls if needed */
+}
+
+.feature-slide .fs-tag {
+  font-size: 0.62rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--gold-light, #d4af37);
+  font-weight: 600;
+}
+
+.feature-slide .fs-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.2rem;          /* slightly smaller on mobile */
+  margin-top: 4px;
+  line-height: 1.2;
+}
+
+/* ---- Responsive width breakpoints ---- */
+@media (min-width: 576px) {
+  .feature-slide {
+    flex: 0 0 60%;
+  }
+  .feature-slide .fs-info {
+    padding: 24px 22px;
+  }
+  .feature-slide .fs-title {
+    font-size: 1.4rem;
+  }
+}
+
+@media (min-width: 992px) {
+  .feature-slide {
+    flex: 0 0 44%;
+    aspect-ratio: 16 / 10;     /* keep same ratio */
+  }
+  .feature-slide .fs-info {
+    padding: 28px 26px;
+  }
+}
+
+/* ---- Extra: video specific tweaks (optional) ---- */
+.feature-slide video.slide-media {
+  background: #000;            /* black letterbox if video doesn't fill */
+}
+
+/* Make video controls look clean on mobile */
+.feature-slide video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
 
 .carousel-nav { display:flex; align-items:center; gap:14px; margin-top:6px; }
 .car-btn { width:48px; height:48px; border-radius:50%; border:1px solid var(--hairline); background:var(--card); display:flex; align-items:center; justify-content:center; transition:.3s var(--ease); flex-shrink:0; }

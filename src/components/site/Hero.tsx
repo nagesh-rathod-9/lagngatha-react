@@ -8,7 +8,7 @@ export function Hero({ data }: { data: HeroData }) {
       <div className="container-x">
         <div className="hero-layout">
           <Reveal>
-            <span className="kicker">{data.kicker}</span>
+            <span className="kicker font-tillana">{data.kicker}</span>
             <h1>{data.headingLine1} {data.headingLine2}</h1>
             <div className="hero-divider" />
             <p className="lead">&ldquo;{data.lead}&rdquo;</p>

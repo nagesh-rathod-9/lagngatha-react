@@ -4,13 +4,14 @@ import { Header } from '../components/site/Header'
 import { Hero } from '../components/site/Hero'
 import { FeaturedCarousel } from '../components/site/FeaturedCarousel'
 import { Gallery } from '../components/site/Gallery'
+import { Reels } from '../components/site/Reels'
 import { Features } from '../components/site/Features'
 import { Packages } from '../components/site/Packages'
 import { About } from '../components/site/About'
 import { Contact } from '../components/site/Contact'
 import { Footer } from '../components/site/Footer'
 import { WhatsAppFloat } from '../components/site/WhatsAppFloat'
-import TeamSection from '../components/site/TeamSection'  
+import TeamSection from '../components/site/TeamSection'
 import { useSectionStorage } from '../hooks/useSectionStorage'
 import {
   heroDefaults, featuredDefaults, galleryCategoryDefaults, reelDefaults,
@@ -33,24 +34,25 @@ export function PublicSite() {
 
   return (
     <div className="lagngatha-site">
-        <Header />
-        <main>
-          <Hero data={hero} />
-          <FeaturedCarousel items={featured} />
-          <Gallery categories={gallery.categories} reels={gallery.reels} />
-          <Features items={features} />
-          <Packages tiers={packages} phone={contact.phone} />
-          <About data={about} />
-          <TeamSection />
-          <Contact
-            data={contact}
-            onSubmit={(payload) => {
-              console.log('New inquiry:', payload)
-            }}
-          />
-        </main>
-        <Footer contact={contact} galleryImages={footerGalleryDefaults} />
-        <WhatsAppFloat whatsappUrl={contact.whatsappUrl} />
+      <Header />
+      <main>
+        <Hero data={hero} />
+        <FeaturedCarousel items={featured} />
+        <Gallery categories={gallery.categories} />
+        <Reels reels={gallery.reels} />
+        <Features items={features} />
+        <Packages tiers={packages} phone={contact.phone} />
+        <About data={about} />
+        <TeamSection />
+        <Contact
+          data={contact}
+          onSubmit={(payload) => {
+            console.log('New inquiry:', payload)
+          }}
+        />
+      </main>
+      <Footer contact={contact} galleryImages={footerGalleryDefaults} />
+      <WhatsAppFloat whatsappUrl={contact.whatsappUrl} />
     </div>
   )
 }
