@@ -414,30 +414,6 @@ export function Reels({ reels }: { reels: Reel[] }) {
             backdrop-filter: blur(4px);
           }
 
-          .reel-card .overlay {
-            position: absolute;
-            inset: 0;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-end;
-            padding: 16px;
-            background: linear-gradient(0deg, rgba(0,0,0,.7) 0%, transparent 55%);
-            color: #fff;
-          }
-          .reel-card .gt-cat {
-            font-size: 10px;
-            font-weight: 500;
-            letter-spacing: .06em;
-            text-transform: uppercase;
-            opacity: .8;
-          }
-          .reel-card .gt-title {
-            font-size: 13px;
-            font-weight: 600;
-            margin-top: 2px;
-            line-height: 1.3;
-          }
-
           .lightbox-overlay {
             position: fixed;
             inset: 0;
@@ -706,14 +682,11 @@ export function Reels({ reels }: { reels: Reel[] }) {
                     {reels.map((r, i) => (
                         <div className="reel-card" key={r.title + i} onClick={() => handleOpen(i)}>
                             <img src={assetUrl(r.poster)} alt={r.title} loading="lazy" />
-                            
+
                             <div className="play-ico">
                                 <svg viewBox="0 0 24 24" fill="currentColor">
                                     <path d="M8 5v14l11-7z" />
                                 </svg>
-                            </div>
-                            <div className="overlay">
-                                <span className="gt-cat">{r.sub}</span>
                             </div>
                         </div>
                     ))}
