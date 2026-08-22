@@ -1,6 +1,3 @@
-// Default/fallback content for the public site.
-// Each section can later be overridden by its matching Admin*Section
-// (see src/hooks/useSectionStorage.ts for the wiring convention).
 export interface HeroData {
   kicker: string;
   headingLine1: string;
@@ -21,7 +18,7 @@ export const heroDefaults: HeroData = {
   ctaPrimary: "Book Your Story",
   ctaSecondary: "See Our Work",
   stats: [
-    { number: "200+", label: "Weddings" },
+    { number: "300+", label: "Weddings" },
     { number: "100%", label: "Happy Clients" },
   ],
   images: [
@@ -40,12 +37,12 @@ export interface FeaturedStory {
   image?: string;
   tag: string;
   title: string;
-  video?: string; 
+  video?: string;
 }
 
 export const featuredDefaults: FeaturedStory[] = [
   { tag: "Wedding Film", title: "", video: "video/story1.mp4" },
-  {  tag: "Outdoors", title: "", video: "video/story2.mp4" },
+  { tag: "Outdoors", title: "", video: "video/story2.mp4" },
   { tag: "Wedding Film", title: "", video: "video/story3.mp4" },
   { tag: "Wedding Film", title: "", video: "video/story4.mp4" },
   { tag: "Wedding Film", title: "", video: "video/vid8.mp4" },
@@ -154,7 +151,7 @@ export interface Reel {
   file: string;
   sub: string;
   poster: string;
-  embedUrl?: string; // Instagram reel permalink, e.g. https://www.instagram.com/reel/Dbp8wyQu02z/
+  embedUrl?: string;
 }
 
 export const reelDefaults: Reel[] = [
@@ -173,7 +170,7 @@ export const reelDefaults: Reel[] = [
     sub: "Cinematic Cut",
     poster: "video/vid3.png",
   },
-   {
+  {
     file: "video/vid4.mp4",
     sub: "Wedding Highlight",
     poster: "video/vid4.jpg",
@@ -193,12 +190,12 @@ export const reelDefaults: Reel[] = [
     sub: "Cinematic Cut",
     poster: "video/vid7.png",
   },
-   {
+  {
     file: "video/vid8.mp4",
     sub: "Cinematic Cut",
     poster: "video/vid8.png",
   },
-    {
+  {
     file: "video/vid9.mp4",
     sub: "Cinematic Cut",
     poster: "video/vid9.png",
@@ -250,40 +247,62 @@ export interface PackageTier {
 
 export const packageDefaults: PackageTier[] = [
   {
-    name: "Essentials",
-    tag: "Perfect for intimate, single-day weddings",
-    price: "\u20b935,000 onwards",
+    name: "Package 1",
+    tag: "Essential coverage for a 2-day wedding",
+    price: "\u20b935,000",
     items: [
-      "1 Day candid coverage (2 photographers)",
-      "300+ edited high-res photos",
-      "Online gallery for family & friends",
-      "1-minute highlight reel",
+      "2 Days coverage",
+      "Traditional photography",
+      "Traditional videography",
+      "30-page photo album",
+      "Wedding video on 1 pendrive",
     ],
   },
   {
-    name: "Signature",
-    tag: "Our most-booked, full celebration package",
-    price: "\u20b975,000 onwards",
+    name: "Package 2",
+    tag: "Traditional + candid coverage with reels",
+    price: "\u20b960,000",
+    items: [
+      "Traditional videography",
+      "Traditional photography",
+      "Candid photography",
+      "2 Instagram reels",
+      "40-page photo album",
+      "All soft copies (private)",
+      "2 Pendrives",
+    ],
+  },
+  {
+    name: "Package 3",
+    tag: "Cinematic storytelling with aerial shots",
+    price: "\u20b91,10,000",
     featured: true,
     ribbon: "Most Loved",
     items: [
-      "2 Days coverage (candid + traditional)",
-      "Cinematic wedding film + reels",
-      "600+ edited photos + premium album",
+      "Traditional photography",
+      "Traditional videography",
+      "Candid photography",
+      "Cinematic video",
       "Drone aerial coverage",
-      "Pre-wedding shoot (half-day)",
+      "50-page photo album",
+      "2 Pendrives",
     ],
   },
   {
-    name: "Heritage",
-    tag: "For multi-event, grand celebrations",
-    price: "\u20b91,25,000 onwards",
+    name: "Package 4",
+    tag: "Full-scale grand wedding production",
+    price: "\u20b92,11,000",
     items: [
-      "3+ Day full-event coverage",
-      "Full cinematic film + teaser + reels",
-      "1000+ edited photos + luxury album",
-      "Drone + full pre-wedding shoot",
-      "Dedicated lead photographer + team",
+      "2 Photographers",
+      "2 Cinematographers",
+      "2 Candid photographers",
+      "Traditional videography",
+      "2 LED walls with live setup",
+      "Drone aerial coverage",
+      "Teaser, trailer & main cinematic video",
+      "80-page photo album",
+      "4 Pendrives",
+      "All soft data included",
     ],
   },
 ];
@@ -306,7 +325,7 @@ export const aboutDefaults: AboutData = {
   quote:
     "From the first haldi morning to the last dance of the reception, we shoot candid, we shoot cinematic, and we shoot with the same care whether it\u2019s 50 guests or 500.",
   stats: [
-    { number: "200+", label: "Weddings Shot" },
+    { number: "300+", label: "Weddings Shot" },
     { number: "8+", label: "Years in Business" },
     { number: "3,698+", label: "Instagram Family" },
   ],
@@ -330,11 +349,11 @@ export interface ContactData {
 
 export const contactDefaults: ContactData = {
   phone: "96731 11013",
-  email: "lagngatha.studio@gmail.com",
+  email: "khiwalepatil@gmail.com",
   city: "Gangapur, Maharashtra",
-  instagramUrl: "https://instagram.com/lagngatha_",
-  facebookUrl: "#",
-  youtubeUrl: "#",
+  instagramUrl: "https://www.instagram.com/kiran_hiwale_photography/",
+  facebookUrl: "https://www.facebook.com/kiran.hiwale.9081/",
+  youtubeUrl: "https://www.youtube.com/@KiranHiwalePhotography-jl4ti/videos",
   whatsappUrl: "https://wa.me/919673111013",
   mapEmbedUrl:
     "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d4440.910414792399!2d74.99756117522132!3d19.704595381633766!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bdb81b4e11f9097%3A0x512bed789c14b4ba!2sKiran%20Hiwale%20photography!5e1!3m2!1sen!2sin!4v1785744114432!5m2!1sen!2sin",
@@ -349,8 +368,6 @@ export const footerGalleryDefaults = [
   "img6.jpg",
 ];
 
-// Where your actual photo/video assets live. Point this at your CDN,
-// Cloudinary folder, or wherever the admin gallery uploader saves files.
 export const ASSET_BASE_URL = "";
 
 export function assetUrl(path: string) {

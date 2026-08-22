@@ -20,33 +20,37 @@ import AdminPricingSection from './pages/Crud/AdminPricingSection'
 import AdminAboutSection from './pages/Crud/AdminAboutSection'
 import AdminTeamSection from './pages/Crud/AdminTeamSection'
 import PublicSite from './pages/PublicSite'
+import Insights from './components/site/Insights'
 
 export default function App() {
   return (
     <Routes>
-      {/* 1. Public Site */}
+
+      {/* Public Site */}
+      <Route path="/insights" element={<Insights />} />
+
       <Route path="/*" element={<PublicSite />} />
 
-      {/* 2. Auth Routes */}
+      {/* Auth Routes */}
       <Route path="/sign-in" element={<SignInPage />} />
       <Route path="/sign-up" element={<SignUpPage />} />
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
 
-      {/* 3. Admin Routes - FIXED */}
+      {/* Admin Routes */}
       <Route path="/admin" element={<Layout />}>
-        {/* 
-           FIXED: Redirects /admin directly to /admin/dashboard 
-           DO NOT use "/admin" here, or it loops infinitely!
-        */}
-        <Route index element={<Navigate to="/admin/dashboard" replace />} />
-        
-        {/* FIXED: Removed the extra "admin/" from the beginning of every path */}
+
+        <Route
+          index
+          element={<Navigate to="/admin/dashboard" replace />}
+        />
+
         <Route path="dashboard" element={<DashboardPage />} />
         <Route path="billing" element={<BillingPage />} />
         <Route path="crm/contacts" element={<ContactsPage />} />
         <Route path="ai/chat" element={<ChatPage />} />
         <Route path="contact-form" element={<AdminInquiries />} />
         <Route path="calender" element={<DayPlanCalendar />} />
+
         <Route path="hero-section" element={<AdminHeroSection />} />
         <Route path="feature-stories" element={<AdminFeaturedStories />} />
         <Route path="gallery" element={<AdminGallerySection />} />
@@ -54,10 +58,13 @@ export default function App() {
         <Route path="pricing" element={<AdminPricingSection />} />
         <Route path="about" element={<AdminAboutSection />} />
         <Route path="team" element={<AdminTeamSection />} />
+
         <Route path="settings" element={<SettingsPage />} />
         <Route path="help" element={<HelpPage />} />
         <Route path="components" element={<ComponentsPage />} />
+
       </Route>
+
     </Routes>
   )
 }

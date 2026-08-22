@@ -20,6 +20,7 @@ import {
 import type {
   HeroData, FeaturedStory, GalleryCategory, Reel, FeatureItem, PackageTier, AboutData, ContactData,
 } from '../data/siteContent'
+import { Testimonials } from '@/components/site/Testimonials'
 
 export function PublicSite() {
   const hero = useSectionStorage<HeroData>('hero_section_data', 'hero-section-updated', heroDefaults)
@@ -44,6 +45,7 @@ export function PublicSite() {
         <Packages tiers={packages} phone={contact.phone} />
         <About data={about} />
         <TeamSection />
+        <Testimonials />
         <Contact
           data={contact}
           onSubmit={(payload) => {

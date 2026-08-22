@@ -33,6 +33,81 @@ function buildWhatsappMessage(payload: Record<string, string>) {
   return lines.join('\n')
 }
 
+// Proper branded social icons, each with their real platform color and a
+// recognizable glyph, styled as a circular button (background + white icon)
+// instead of the generic thin outline icons used before. All inline —
+// no separate CSS file, per project convention.
+const SOCIAL_ICON_SIZE = 40
+
+const socialIconWrapStyle = (background: string): React.CSSProperties => ({
+  display: 'inline-flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  width: SOCIAL_ICON_SIZE,
+  height: SOCIAL_ICON_SIZE,
+  borderRadius: '50%',
+  background,
+  transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+})
+
+function InstagramIcon() {
+  return (
+    <span
+      style={socialIconWrapStyle(
+        'radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285AEB 90%)',
+      )}
+    >
+      <svg width={20} height={20} viewBox="0 0 24 24" fill="none">
+        <rect x="3" y="3" width="18" height="18" rx="5.5" stroke="#fff" strokeWidth={1.8} />
+        <circle cx="12" cy="12" r="4.2" stroke="#fff" strokeWidth={1.8} />
+        <circle cx="17.4" cy="6.6" r="1.15" fill="#fff" />
+      </svg>
+    </span>
+  )
+}
+
+function FacebookIcon() {
+  return (
+    <span style={socialIconWrapStyle('#1877F2')}>
+      <svg width={20} height={20} viewBox="0 0 24 24" fill="none">
+        <path
+          d="M14.5 8.5H16.5V5.3C16.16 5.25 15 5.15 13.65 5.15C10.82 5.15 8.9 6.89 8.9 10.06V12.75H5.75V16.3H8.9V22H12.55V16.3H15.58L16.06 12.75H12.55V10.42C12.55 9.39 12.83 8.5 14.5 8.5Z"
+          fill="#fff"
+        />
+      </svg>
+    </span>
+  )
+}
+
+function YoutubeIcon() {
+  return (
+    <span style={socialIconWrapStyle('#FF0000')}>
+      <svg width={20} height={20} viewBox="0 0 24 24" fill="none">
+        <rect x="2.5" y="6.5" width="19" height="11" rx="3.2" fill="none" stroke="#fff" strokeWidth={1.6} />
+        <path d="M10.2 9.6L15 12L10.2 14.4V9.6Z" fill="#fff" />
+      </svg>
+    </span>
+  )
+}
+
+function WhatsappIcon() {
+  return (
+    <span style={socialIconWrapStyle('#25D366')}>
+      <svg width={20} height={20} viewBox="0 0 24 24" fill="none">
+        <path
+          d="M12 3.5A8.5 8.5 0 0 0 4.6 16.4L3.5 20.5l4.2-1.1A8.5 8.5 0 1 0 12 3.5Z"
+          stroke="#fff"
+          strokeWidth={1.6}
+        />
+        <path
+          d="M9 9.4c0-.5.4-1 .9-1h.6c.3 0 .5.15.6.4l.6 1.5c.1.25.05.5-.1.7l-.5.55c-.1.1-.1.25-.05.4.4.9 1.15 1.65 2.05 2.05.15.05.3.05.4-.05l.55-.5c.2-.15.45-.2.7-.1l1.5.6c.25.1.4.35.4.6v.6c0 .5-.45.9-.95.9-3.4 0-6.7-3.3-6.7-6.7Z"
+          fill="#fff"
+        />
+      </svg>
+    </span>
+  )
+}
+
 export function Contact({ data, onSubmit }: { data: ContactData; onSubmit?: (payload: Record<string, string>) => void }) {
   const [submitted, setSubmitted] = useState(false)
 
@@ -78,11 +153,47 @@ export function Contact({ data, onSubmit }: { data: ContactData; onSubmit?: (pay
                 <div className="ic2"><svg viewBox="0 0 24 24" strokeWidth={1.6} fill="none"><path d="M12 21s-7-5.6-7-11a7 7 0 0 1 14 0c0 5.4-7 11-7 11Z" /><circle cx="12" cy="10" r="2.4" /></svg></div>
                 <div><span className="label">Studio</span><span className="value">{data.city}</span></div>
               </div>
-              <div className="socials">
-                <a href={data.instagramUrl} target="_blank" rel="noreferrer" aria-label="Instagram"><svg viewBox="0 0 24 24" strokeWidth={1.6} fill="none"><rect x="3" y="3" width="18" height="18" rx="5" /><circle cx="12" cy="12" r="4" /><circle cx="17.2" cy="6.8" r="1" /></svg></a>
-                <a href={data.facebookUrl} aria-label="Facebook"><svg viewBox="0 0 24 24" strokeWidth={1.6} fill="none"><path d="M14 9h3V5h-3a4 4 0 0 0-4 4v2H7v4h3v6h4v-6h3l1-4h-4V9a1 1 0 0 1 1-1Z" /></svg></a>
-                <a href={data.youtubeUrl} aria-label="YouTube"><svg viewBox="0 0 24 24" strokeWidth={1.6} fill="none"><rect x="2" y="6" width="20" height="12" rx="3" /><path d="M10 9.5l5 2.5-5 2.5z" fill="currentColor" stroke="none" /></svg></a>
-                <a href={data.whatsappUrl} target="_blank" rel="noreferrer" aria-label="WhatsApp"><svg viewBox="0 0 24 24" strokeWidth={1.6} fill="none"><path d="M4 20l1.3-3.9A8 8 0 1 1 8.3 19Z" /></svg></a>
+              <div className="socials" style={{ display: 'flex', gap: 12, marginTop: 8 }}>
+                <a
+                  href={data.instagramUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label="Instagram"
+                  style={{ display: 'inline-flex' }}
+                  onMouseEnter={(e) => (e.currentTarget.style.transform = 'translateY(-2px)')}
+                  onMouseLeave={(e) => (e.currentTarget.style.transform = 'translateY(0)')}
+                >
+                  <InstagramIcon />
+                </a>
+                <a
+                  href={data.facebookUrl}
+                  aria-label="Facebook"
+                  style={{ display: 'inline-flex' }}
+                  onMouseEnter={(e) => (e.currentTarget.style.transform = 'translateY(-2px)')}
+                  onMouseLeave={(e) => (e.currentTarget.style.transform = 'translateY(0)')}
+                >
+                  <FacebookIcon />
+                </a>
+                <a
+                  href={data.youtubeUrl}
+                  aria-label="YouTube"
+                  style={{ display: 'inline-flex' }}
+                  onMouseEnter={(e) => (e.currentTarget.style.transform = 'translateY(-2px)')}
+                  onMouseLeave={(e) => (e.currentTarget.style.transform = 'translateY(0)')}
+                >
+                  <YoutubeIcon />
+                </a>
+                <a
+                  href={data.whatsappUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label="WhatsApp"
+                  style={{ display: 'inline-flex' }}
+                  onMouseEnter={(e) => (e.currentTarget.style.transform = 'translateY(-2px)')}
+                  onMouseLeave={(e) => (e.currentTarget.style.transform = 'translateY(0)')}
+                >
+                  <WhatsappIcon />
+                </a>
               </div>
             </div>
             <div className="map-frame">
