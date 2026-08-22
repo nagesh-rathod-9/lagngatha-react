@@ -1,8 +1,4 @@
 import { useEffect, useState } from "react";
-import {
-  Box, Card, CardContent, CircularProgress, Container, Grid,
-  Typography, Divider, Alert,
-} from "@mui/material";
 
 interface Overview {
   activeUsers: number;
@@ -63,120 +59,94 @@ const Insights = () => {
 
   if (loading) {
     return (
-      <Box sx={{ minHeight: "70vh", display: "flex", justifyContent: "center", alignItems: "center" }}>
-        <CircularProgress />
-      </Box>
+      <div className="min-h-[70vh] flex justify-center items-center">
+        <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
+      </div>
     );
   }
 
   if (error) {
     return (
-      <Container maxWidth="lg" sx={{ py: 5 }}>
-        <Alert severity="error">{error}</Alert>
-      </Container>
+      <div className="max-w-6xl mx-auto py-10">
+        <div className="bg-red-100 text-red-700 p-4 rounded-lg">{error}</div>
+      </div>
     );
   }
 
   if (!data) return null;
 
   return (
-    <Container maxWidth="lg" sx={{ py: 5 }}>
-      <Box sx={{ mb: 4 }}>
-        <Typography variant="h4" fontWeight={700}>Website Insights</Typography>
-        <Typography color="text.secondary" sx={{ mt: 1 }}>
-          Real-time website analytics from Google Analytics
-        </Typography>
-      </Box>
+    <div className="max-w-6xl mx-auto py-10 px-4">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold">Website Insights</h1>
+        <p className="text-gray-500 mt-1">Real-time website analytics from Google Analytics</p>
+      </div>
 
-      <Grid container spacing={3}>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
         {/* Overview Cards */}
-        <Grid item xs={12} sm={6} md={3}>
-          <Card><CardContent>
-            <Typography color="text.secondary">Visitors</Typography>
-            <Typography variant="h4" fontWeight={700} sx={{ mt: 1 }}>
-              {data.overview.activeUsers.toLocaleString()}
-            </Typography>
-          </CardContent></Card>
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <Card><CardContent>
-            <Typography color="text.secondary">Sessions</Typography>
-            <Typography variant="h4" fontWeight={700} sx={{ mt: 1 }}>
-              {data.overview.sessions.toLocaleString()}
-            </Typography>
-          </CardContent></Card>
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <Card><CardContent>
-            <Typography color="text.secondary">Page Views</Typography>
-            <Typography variant="h4" fontWeight={700} sx={{ mt: 1 }}>
-              {data.overview.screenPageViews.toLocaleString()}
-            </Typography>
-          </CardContent></Card>
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <Card><CardContent>
-            <Typography color="text.secondary">Avg. Session</Typography>
-            <Typography variant="h4" fontWeight={700} sx={{ mt: 1 }}>
-              {formatDuration(data.overview.averageSessionDuration)}
-            </Typography>
-          </CardContent></Card>
-        </Grid>
+        <div className="bg-white shadow rounded-lg p-6">
+          <p className="text-gray-500">Visitors</p>
+          <p className="text-3xl font-bold mt-2">{data.overview.activeUsers.toLocaleString()}</p>
+        </div>
+        <div className="bg-white shadow rounded-lg p-6">
+          <p className="text-gray-500">Sessions</p>
+          <p className="text-3xl font-bold mt-2">{data.overview.sessions.toLocaleString()}</p>
+        </div>
+        <div className="bg-white shadow rounded-lg p-6">
+          <p className="text-gray-500">Page Views</p>
+          <p className="text-3xl font-bold mt-2">{data.overview.screenPageViews.toLocaleString()}</p>
+        </div>
+        <div className="bg-white shadow rounded-lg p-6">
+          <p className="text-gray-500">Avg. Session</p>
+          <p className="text-3xl font-bold mt-2">{formatDuration(data.overview.averageSessionDuration)}</p>
+        </div>
 
         {/* Locations */}
-        <Grid item xs={12} md={6}>
-          <Card><CardContent>
-            <Typography variant="h6" fontWeight={700}>Visitor Locations</Typography>
-            <Divider sx={{ my: 2 }} />
+        <div className="bg-white shadow rounded-lg p-6 md:col-span-2">
+          <h2 className="text-lg font-bold mb-4">Visitor Locations</h2>
+          <div className="divide-y divide-gray-100">
             {data.locations.length === 0 ? (
-              <Typography color="text.secondary">No location data available.</Typography>
+              <p className="text-gray-500">No location data available.</p>
             ) : (
               data.locations.map((location, index) => (
-                <Box key={`${location.country}-${location.city}-${index}`}
-                  sx={{ display: "flex", justifyContent: "space-between", py: 1.5 }}>
-                  <Box>
-                    <Typography fontWeight={600}>{location.city || "Unknown"}</Typography>
-                    <Typography variant="body2" color="text.secondary">
+                <div key={`${location.country}-${location.city}-${index}`} className="flex justify-between py-3">
+                  <div>
+                    <p className="font-semibold">{location.city || "Unknown"}</p>
+                    <p className="text-sm text-gray-500">
                       {location.region || "Unknown"}, {location.country || "Unknown"}
-                    </Typography>
-                  </Box>
-                  <Typography fontWeight={700}>{location.users.toLocaleString()}</Typography>
-                </Box>
+                    </p>
+                  </div>
+                  <p className="font-bold">{location.users.toLocaleString()}</p>
+                </div>
               ))
             )}
-          </CardContent></Card>
-        </Grid>
+          </div>
+        </div>
 
         {/* Traffic Sources */}
-        <Grid item xs={12} md={6}>
-          <Card><CardContent>
-            <Typography variant="h6" fontWeight={700}>Traffic Sources</Typography>
-            <Divider sx={{ my: 2 }} />
+        <div className="bg-white shadow rounded-lg p-6 md:col-span-2">
+          <h2 className="text-lg font-bold mb-4">Traffic Sources</h2>
+          <div className="divide-y divide-gray-100">
             {data.trafficSources.length === 0 ? (
-              <Typography color="text.secondary">No traffic source data available.</Typography>
+              <p className="text-gray-500">No traffic source data available.</p>
             ) : (
               data.trafficSources.map((source, index) => (
-                <Box key={`${source.source}-${source.medium}-${index}`}
-                  sx={{ display: "flex", justifyContent: "space-between", py: 1.5 }}>
-                  <Box>
-                    <Typography fontWeight={600}>{source.source || "Direct"}</Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      {source.medium || "none"}
-                    </Typography>
-                  </Box>
-                  <Box sx={{ textAlign: "right" }}>
-                    <Typography fontWeight={700}>{source.users.toLocaleString()} users</Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      {source.sessions.toLocaleString()} sessions
-                    </Typography>
-                  </Box>
-                </Box>
+                <div key={`${source.source}-${source.medium}-${index}`} className="flex justify-between py-3">
+                  <div>
+                    <p className="font-semibold">{source.source || "Direct"}</p>
+                    <p className="text-sm text-gray-500">{source.medium || "none"}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-bold">{source.users.toLocaleString()} users</p>
+                    <p className="text-sm text-gray-500">{source.sessions.toLocaleString()} sessions</p>
+                  </div>
+                </div>
               ))
             )}
-          </CardContent></Card>
-        </Grid>
-      </Grid>
-    </Container>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };
 
