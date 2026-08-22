@@ -32,11 +32,11 @@ const defaultTeamData: TeamData = {
     tagline: 'Different minds. One vision. Your story.',
     members: [
         { id: 'm1', photo: 'team1.png', name: 'Kiran Hiwale', role: 'Lead Photographer & Founder', instagramHandle: '@kiran_hiwale_photography', phone: '9673111013' },
-        { id: 'm2', photo: 'team2.png', name: 'Mangesh Kurne', role: 'Cinematographer', instagramHandle: 'https://www.instagram.com/mk_photography096/', phone: ' 9604626431' },
-        { id: 'm3', photo: 'team3.png', name: 'Walmik Temkar ', role: 'Traditional photography', instagramHandle: 'https://www.instagram.com/vt_films_and_photography/', phone: '' },
-        { id: 'm4', photo: 'team4.png', name: 'Kishor Phimpale', role: 'Traditional VideoGrapher', instagramHandle: 'https://www.instagram.com/kishorphotography_kp/', phone: '' },
-        { id: 'm5', photo: 'team5.png', name: 'Shubham Jadhav', role: 'Traditional Photographer', instagramHandle: 'https://www.instagram.com/shubham_jadhav_patil_007/', phone: '' },
-        { id: 'm6', photo: 'team6.png', name: 'Vaibhav Wagh', role: 'Traditional VideoGrapher', instagramHandle: 'https://www.instagram.com/waghvaibhav__/', phone: '' },
+        { id: 'm2', photo: 'team2.png', name: 'Mangesh Kurne', role: 'Cinematographer', instagramHandle: '@mk_photography096', phone: ' 9604626431' },
+        { id: 'm3', photo: 'team3.png', name: 'Walmik Temkar ', role: 'Traditional photography', instagramHandle: '@vt_films_and_photography', phone: '' },
+        { id: 'm4', photo: 'team4.png', name: 'Kishor Phimpale', role: 'Traditional VideoGrapher', instagramHandle: '@kishorphotography_kp', phone: '' },
+        { id: 'm5', photo: 'team5.png', name: 'Shubham Jadhav', role: 'Traditional Photographer', instagramHandle: '@shubham_jadhav_patil_007', phone: '' },
+        { id: 'm6', photo: 'team6.png', name: 'Vaibhav Wagh', role: 'Traditional VideoGrapher', instagramHandle: '@waghvaibhav__', phone: '' },
     ],
 }
 
