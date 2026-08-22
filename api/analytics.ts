@@ -19,7 +19,46 @@ export default async function handler(req: any, res: any) {
       return res.status(500).json({ message: "GA4_PROPERTY_ID is not configured" });
     }
 
-    // Overview
+    // ================= REALTIME (instant, last 30 minutes) =================
+    const [realtimeResponse] = await client.runRealtimeReport({
+      property: `properties/${propertyId}`,
+      metrics: [{ name: "activeUsers" }, { name: "screenPageViews" }],
+    });
+
+    const [realtimePagesResponse] = await client.runRealtimeReport({
+      property: `properties/${propertyId}`,
+      dimensions: [{ name: "unifiedScreenName" }],
+      metrics: [{ name: "activeUsers" }],
+      limit: 10,
+      orderBys: [{ metric: { metricName: "activeUsers" }, desc: true }],
+    });
+
+    const [realtimeLocationResponse] = await client.runRealtimeReport({
+      property: `properties/${propertyId}`,
+      dimensions: [{ name: "country" }, { name: "city" }],
+      metrics: [{ name: "activeUsers" }],
+      limit: 10,
+      orderBys: [{ metric: { metricName: "activeUsers" }, desc: true }],
+    });
+
+    const realtimeRow = realtimeResponse.rows?.[0];
+    const realtime = {
+      activeUsers: Number(realtimeRow?.metricValues?.[0]?.value || 0),
+      screenPageViews: Number(realtimeRow?.metricValues?.[1]?.value || 0),
+      topPages:
+        realtimePagesResponse.rows?.map((row) => ({
+          page: row.dimensionValues?.[0]?.value || "",
+          activeUsers: Number(row.metricValues?.[0]?.value || 0),
+        })) || [],
+      locations:
+        realtimeLocationResponse.rows?.map((row) => ({
+          country: row.dimensionValues?.[0]?.value || "",
+          city: row.dimensionValues?.[1]?.value || "",
+          activeUsers: Number(row.metricValues?.[0]?.value || 0),
+        })) || [],
+    };
+
+    // ================= STANDARD REPORTS (30-day history, has processing delay) =================
     const [overviewResponse] = await client.runReport({
       property: `properties/${propertyId}`,
       dateRanges: [{ startDate: "30daysAgo", endDate: "today" }],
@@ -31,7 +70,6 @@ export default async function handler(req: any, res: any) {
       ],
     });
 
-    // Locations
     const [locationResponse] = await client.runReport({
       property: `properties/${propertyId}`,
       dateRanges: [{ startDate: "30daysAgo", endDate: "today" }],
@@ -41,7 +79,6 @@ export default async function handler(req: any, res: any) {
       orderBys: [{ metric: { metricName: "activeUsers" }, desc: true }],
     });
 
-    // Traffic Sources
     const [trafficResponse] = await client.runReport({
       property: `properties/${propertyId}`,
       dateRanges: [{ startDate: "30daysAgo", endDate: "today" }],
@@ -59,21 +96,28 @@ export default async function handler(req: any, res: any) {
       averageSessionDuration: Number(overviewRow?.metricValues?.[3]?.value || 0),
     };
 
-    const locations = locationResponse.rows?.map((row) => ({
-      country: row.dimensionValues?.[0]?.value || "",
-      region: row.dimensionValues?.[1]?.value || "",
-      city: row.dimensionValues?.[2]?.value || "",
-      users: Number(row.metricValues?.[0]?.value || 0),
-    })) || [];
+    const locations =
+      locationResponse.rows?.map((row) => ({
+        country: row.dimensionValues?.[0]?.value || "",
+        region: row.dimensionValues?.[1]?.value || "",
+        city: row.dimensionValues?.[2]?.value || "",
+        users: Number(row.metricValues?.[0]?.value || 0),
+      })) || [];
 
-    const trafficSources = trafficResponse.rows?.map((row) => ({
-      source: row.dimensionValues?.[0]?.value || "",
-      medium: row.dimensionValues?.[1]?.value || "",
-      users: Number(row.metricValues?.[0]?.value || 0),
-      sessions: Number(row.metricValues?.[1]?.value || 0),
-    })) || [];
+    const trafficSources =
+      trafficResponse.rows?.map((row) => ({
+        source: row.dimensionValues?.[0]?.value || "",
+        medium: row.dimensionValues?.[1]?.value || "",
+        users: Number(row.metricValues?.[0]?.value || 0),
+        sessions: Number(row.metricValues?.[1]?.value || 0),
+      })) || [];
 
-    return res.status(200).json({ overview, locations, trafficSources });
+    return res.status(200).json({
+      realtime,
+      overview,
+      locations,
+      trafficSources,
+    });
   } catch (error) {
     console.error("GA4 Analytics Error:", error);
     return res.status(500).json({ message: "Failed to fetch Google Analytics data" });
