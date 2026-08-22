@@ -73,6 +73,29 @@
 .btn-gold { background:var(--maroon); color:#fff; border-color:var(--maroon); }
 .btn-gold:hover { background:var(--maroon-deep); border-color:var(--maroon-deep); transform:translateY(-2px); box-shadow:0 16px 34px rgba(74,14,26,.28); }
 .btn-outline-gold { background:transparent; color:var(--ink); border-color:var(--hairline); }
+.btn-outline-gold-active {
+  border-color: var(--maroon);
+  color: var(--maroon);
+  transform: translateY(-2px);
+}
+
+.hero-locations {
+  margin: 1.2rem 0 1.8rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #b8873c; /* gold accent, matches site theme */
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.hero-locations .sep {
+  opacity: 0.5;
+  font-weight: 300;
+}
+
 .btn-outline-gold:hover { border-color:var(--maroon); color:var(--maroon); transform:translateY(-2px); }
 .btn-maroon { background:var(--gold); color:#fff; border-color:var(--gold); }
 .btn-maroon:hover { background:var(--maroon); border-color:var(--maroon); transform:translateY(-2px); box-shadow:0 16px 34px var(--gold-glow); }

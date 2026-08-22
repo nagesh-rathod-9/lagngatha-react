@@ -12,9 +12,19 @@ export function Hero({ data }: { data: HeroData }) {
             <h1>{data.headingLine1} {data.headingLine2}</h1>
             <div className="hero-divider" />
             <p className="lead">&ldquo;{data.lead}&rdquo;</p>
+
+            {/* New line: preferred locations */}
+            <div className="hero-locations">
+              <span>Sambhajinagar</span>
+              <span className="sep">|</span>
+              <span>Pune</span>
+              <span className="sep">|</span>
+              <span>Ahilyanagar</span>
+            </div>
+
             <div className="hero-cta">
               <a href="#contact" className="btn-gold">{data.ctaPrimary}</a>
-              <a href="#gallery" className="btn-outline-gold">{data.ctaSecondary}</a>
+              <a href="#gallery" className="btn-outline-gold btn-outline-gold-active">{data.ctaSecondary}</a>
             </div>
             <div className="hero-stats">
               {data.stats.map((s) => (

@@ -29,9 +29,6 @@ function loadInstagramEmbedScript(): Promise<void> {
 function InstagramEmbed({ url }: { url: string }) {
     useEffect(() => {
         loadInstagramEmbedScript().then(() => {
-            // Re-scan the DOM so this blockquote (which may have just
-            // mounted, or changed permalink on reel switch) gets turned
-            // into the real inline player.
             window.instgrm?.Embeds.process()
         })
     }, [url])
@@ -56,6 +53,7 @@ function ReelLightbox({
     initialIndex: number
     onClose: () => void
 }) {
+    // (unchanged lightbox code)
     const [index, setIndex] = useState(initialIndex)
     const [isPlaying, setIsPlaying] = useState(true)
     const [isMuted, setIsMuted] = useState(false)
@@ -220,11 +218,6 @@ function ReelLightbox({
                 <div className={`lb-media-wrap ${isTransitioning ? 'lb-transition' : ''}`}>
                     {isEmbed ? (
                         <div className="lb-embed-wrap">
-                            {/* Real Instagram embed — driven by embedUrl (the reel
-                                permalink) set in siteContent.ts. Instagram's embed.js
-                                turns this blockquote into an inline player with its own
-                                play/pause + sound controls; hitting play does NOT
-                                navigate away from the site. */}
                             <InstagramEmbed url={current.embedUrl!} />
                         </div>
                     ) : (
@@ -284,11 +277,112 @@ function ReelLightbox({
     )
 }
 
+// ============== NEW COMPONENT: ReelThumb ==============
+function ReelThumb({
+    poster,
+    file,
+    title,
+}: {
+    poster?: string
+    file: string
+    title: string
+}) {
+    const videoRef = useRef<HTMLVideoElement>(null)
+    const [hasPoster] = useState(!!poster)
+    const [videoFailed, setVideoFailed] = useState(false)
+
+    useEffect(() => {
+        if (!hasPoster && videoRef.current) {
+            // Seek to a small time to show a non-black frame, then pause
+            const video = videoRef.current
+            const onLoaded = () => {
+                if (video.currentTime === 0) {
+                    video.currentTime = 0.1
+                }
+                video.pause()
+            }
+            video.addEventListener('loadedmetadata', onLoaded)
+            video.addEventListener('loadeddata', onLoaded)
+            video.addEventListener('error', () => setVideoFailed(true))
+
+            return () => {
+                video.removeEventListener('loadedmetadata', onLoaded)
+                video.removeEventListener('loadeddata', onLoaded)
+                video.removeEventListener('error', () => setVideoFailed(true))
+            }
+        }
+    }, [hasPoster])
+
+    if (hasPoster) {
+        return <img src={assetUrl(poster!)} alt={title} loading="lazy" />
+    }
+
+    if (videoFailed) {
+        // Fallback placeholder if video cannot load
+        return (
+            <div
+                style={{
+                    width: '100%',
+                    height: '100%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    background: 'linear-gradient(135deg, #b8873c, #7a2432)',
+                    color: '#fff',
+                }}
+            >
+                <svg viewBox="0 0 24 24" fill="currentColor" style={{ width: 32, height: 32 }}>
+                    <path d="M8 5v14l11-7z" />
+                </svg>
+            </div>
+        )
+    }
+
+    return (
+        <video
+            ref={videoRef}
+            src={assetUrl(file)}
+            muted
+            playsInline
+            preload="metadata"
+            style={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+                display: 'block',
+            }}
+        />
+    )
+}
+// ============== END NEW COMPONENT ==============
+
+type ReelCategory = 'prewedding' | 'weddingCinematic' | 'reel'
+
+const TABS: { key: ReelCategory; label: string }[] = [
+    { key: 'prewedding', label: 'Prewedding' },
+    { key: 'weddingCinematic', label: 'Wedding Cinematic' },
+    { key: 'reel', label: 'Reel' },
+]
+
 export function Reels({ reels }: { reels: Reel[] }) {
+    const [activeTab, setActiveTab] = useState<ReelCategory>('prewedding')
     const [lightboxOpen, setLightboxOpen] = useState(false)
     const [lightboxIndex, setLightboxIndex] = useState(0)
 
-    const items = reels.map((r) => ({
+    const visibleReels = reels.filter((r) => {
+        switch (activeTab) {
+            case 'prewedding':
+                return r.category === 'prewedding'
+            case 'weddingCinematic':
+                return r.category === 'WeddingCinematic'
+            case 'reel':
+                return r.category === 'Reel'
+            default:
+                return false
+        }
+    })
+
+    const items = visibleReels.map((r) => ({
         src: assetUrl(r.file),
         poster: assetUrl(r.poster),
         title: `${r.title} \u2014 ${r.sub}`,
@@ -306,391 +400,404 @@ export function Reels({ reels }: { reels: Reel[] }) {
         document.body.style.overflow = ''
     }
 
+    const handleTabChange = (tab: ReelCategory) => {
+        setActiveTab(tab)
+    }
+
     if (!reels.length) return null
 
     return (
         <section id="reels" className="section">
             <style>{`
-          .reels-strip {
-            display: flex;
-            gap: 16px;
-            overflow-x: auto;
-            padding: 4px 4px 12px;
-            scroll-snap-type: x mandatory;
-            -webkit-overflow-scrolling: touch;
-          }
-          .reels-strip::-webkit-scrollbar { height: 6px; }
-          .reels-strip::-webkit-scrollbar-thumb { background: rgba(185,135,60,.4); border-radius: 4px; }
-
-          .reel-card {
-            position: relative;
-            flex: 0 0 220px;
-            aspect-ratio: 9 / 16;
-            border-radius: 14px;
-            overflow: hidden;
-            cursor: pointer;
-            background: #1a1a1a;
-            scroll-snap-align: start;
-            box-shadow: 0 8px 30px rgba(0,0,0,.12);
-            transition: transform .3s ease, box-shadow .3s ease;
-          }
-          .reel-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 16px 48px rgba(0,0,0,.18);
-          }
-          .reel-card img {
-            display: block;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform .5s ease;
-          }
-          .reel-card:hover img {
-            transform: scale(1.03);
-          }
-
-          .reel-card .play-ico {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 52px;
-            height: 52px;
-            border-radius: 50%;
-            background: rgba(185,135,60,.88);
-            backdrop-filter: blur(4px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #fff;
-            transition: transform .3s ease, background .3s ease;
-            pointer-events: none;
-            box-shadow: 0 4px 20px rgba(185,135,60,.35);
-          }
-          .reel-card .play-ico svg {
-            width: 26px;
-            height: 26px;
-            margin-left: 3px;
-          }
-          .reel-card:hover .play-ico {
-            transform: translate(-50%, -50%) scale(1.08);
-            background: rgba(185,135,60,1);
-          }
-
-          .reel-card .reel-progress {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            display: flex;
-            gap: 4px;
-            padding: 10px 12px;
-            background: linear-gradient(180deg, rgba(0,0,0,.5), transparent);
-            pointer-events: none;
-          }
-          .reel-card .reel-progress span {
-            flex: 1;
-            height: 3px;
-            border-radius: 4px;
-            background: rgba(255,255,255,.25);
-          }
-          .reel-card .reel-progress span:first-child {
-            background: rgba(255,255,255,.7);
-          }
-
-          .reel-card .reel-badge {
-            position: absolute;
-            top: 12px;
-            right: 12px;
-            padding: 4px 12px;
-            border-radius: 100px;
-            font-size: 10px;
-            font-weight: 600;
-            letter-spacing: .04em;
-            text-transform: uppercase;
-            background: rgba(185,135,60,.9);
-            color: #fff;
-            pointer-events: none;
-            backdrop-filter: blur(4px);
-          }
-
-          .lightbox-overlay {
-            position: fixed;
-            inset: 0;
-            z-index: 9999;
-            background: rgba(0,0,0,.88);
-            backdrop-filter: blur(16px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            animation: lbFadeIn .3s ease;
-          }
-          @keyframes lbFadeIn {
-            0% { opacity: 0; backdrop-filter: blur(0); }
-            100% { opacity: 1; backdrop-filter: blur(16px); }
-          }
-
-          .lb-close {
-            position: absolute;
-            top: 20px;
-            right: 24px;
-            width: 44px;
-            height: 44px;
-            border: none;
-            border-radius: 50%;
-            background: rgba(255,255,255,.08);
-            backdrop-filter: blur(4px);
-            color: #fff;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: background .25s ease, transform .25s ease;
-            z-index: 10;
-          }
-          .lb-close:hover {
-            background: rgba(255,255,255,.18);
-            transform: rotate(90deg);
-          }
-          .lb-close svg { width: 22px; height: 22px; }
-
-          .lb-counter {
-            position: absolute;
-            top: 24px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 13px;
-            font-weight: 500;
-            color: rgba(255,255,255,.5);
-            letter-spacing: .04em;
-            font-variant-numeric: tabular-nums;
-            z-index: 10;
-            background: rgba(0,0,0,.3);
-            padding: 4px 16px;
-            border-radius: 100px;
-            backdrop-filter: blur(4px);
-          }
-
-          .lb-arrow {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 48px;
-            height: 48px;
-            border: none;
-            border-radius: 50%;
-            background: rgba(255,255,255,.06);
-            backdrop-filter: blur(4px);
-            color: #fff;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: background .25s ease, transform .25s ease;
-            z-index: 10;
-          }
-          .lb-arrow:hover {
-            background: rgba(255,255,255,.14);
-            transform: translateY(-50%) scale(1.05);
-          }
-          .lb-arrow svg { width: 22px; height: 22px; }
-          .lb-arrow-prev { left: 24px; }
-          .lb-arrow-next { right: 24px; }
-
-          .lb-content {
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            max-width: 90vw;
-            max-height: 90vh;
-            width: 100%;
-            height: 100%;
-            justify-content: center;
-          }
-
-          .lb-media-wrap {
-            position: relative;
-            width: 100%;
-            height: calc(100% - 60px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: opacity .3s ease, transform .3s ease;
-          }
-          .lb-media-wrap.lb-transition {
-            opacity: 0;
-            transform: scale(.96);
-          }
-
-          .lb-video-wrap {
-            position: relative;
-            width: 100%;
-            max-width: 460px;
-            aspect-ratio: 9 / 16;
-            background: #000;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 20px 60px rgba(0,0,0,.5);
-          }
-          .lb-video {
-            width: 100%;
-            height: 100%;
-            display: block;
-            background: #000;
-            object-fit: cover;
-          }
-
-          .lb-embed-wrap {
-            position: relative;
-            width: 100%;
-            max-width: 400px;
-            max-height: 85vh;
-            overflow-y: auto;
-            background: #000;
-            border-radius: 10px;
-            box-shadow: 0 20px 60px rgba(0,0,0,.5);
-          }
-
-          .lb-video-controls {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 18px 14px;
-            background: linear-gradient(0deg, rgba(0,0,0,.7) 0%, transparent 100%);
-          }
-
-          .lb-vctrl-btn {
-            flex-shrink: 0;
-            width: 36px;
-            height: 36px;
-            border: none;
-            border-radius: 50%;
-            background: rgba(255,255,255,.08);
-            backdrop-filter: blur(4px);
-            color: #fff;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: background .2s ease, transform .2s ease;
-          }
-          .lb-vctrl-btn:hover {
-            background: rgba(255,255,255,.18);
-            transform: scale(1.06);
-          }
-          .lb-vctrl-btn svg { width: 18px; height: 18px; }
-
-          .lb-vprogress {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            cursor: pointer;
-          }
-          .lb-vprogress-track {
-            flex: 1;
-            height: 4px;
-            border-radius: 4px;
-            background: rgba(255,255,255,.2);
-            position: relative;
-            transition: height .2s ease;
-          }
-          .lb-vprogress-track:hover { height: 6px; }
-          .lb-vprogress-fill {
-            height: 100%;
-            border-radius: 4px;
-            background: #b8873c;
-            transition: width .05s linear;
-          }
-          .lb-vtime {
-            font-size: 12px;
-            font-weight: 500;
-            color: rgba(255,255,255,.7);
-            font-variant-numeric: tabular-nums;
-            letter-spacing: .02em;
-            flex-shrink: 0;
-            min-width: 76px;
-            text-align: right;
-          }
-
-          .lb-title {
-            margin-top: 14px;
-            font-size: 15px;
-            font-weight: 500;
-            color: rgba(255,255,255,.7);
-            text-align: center;
-            letter-spacing: .02em;
-            max-width: 80%;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-          }
-
-          @media (max-width: 768px) {
-            .reel-card { flex-basis: 160px; }
-            .lb-arrow { width: 40px; height: 40px; }
-            .lb-arrow svg { width: 18px; height: 18px; }
-            .lb-arrow-prev { left: 8px; }
-            .lb-arrow-next { right: 8px; }
-            .lb-close { top: 12px; right: 12px; width: 38px; height: 38px; }
-            .lb-close svg { width: 18px; height: 18px; }
-            .lb-counter { top: 14px; font-size: 11px; padding: 2px 12px; }
-            .lb-video-controls { padding: 8px 12px 12px; gap: 8px; }
-            .lb-vctrl-btn { width: 30px; height: 30px; }
-            .lb-vctrl-btn svg { width: 15px; height: 15px; }
-            .lb-vtime { font-size: 10px; min-width: 60px; }
-            .lb-title { font-size: 13px; margin-top: 10px; max-width: 90%; }
-            .lb-content { max-width: 96vw; max-height: 94vh; }
-            .lb-media-wrap { height: calc(100% - 50px); }
-            .lb-video-wrap { border-radius: 6px; }
-            .lb-embed-wrap { border-radius: 6px; max-width: 320px; }
-          }
-
-          @media (max-width: 480px) {
-            .reel-card { flex-basis: 140px; }
-            .lb-arrow { width: 32px; height: 32px; }
-            .lb-arrow svg { width: 14px; height: 14px; }
-            .lb-arrow-prev { left: 4px; }
-            .lb-arrow-next { right: 4px; }
-            .lb-video-controls { padding: 6px 8px 10px; gap: 6px; }
-            .lb-vctrl-btn { width: 26px; height: 26px; }
-            .lb-vctrl-btn svg { width: 13px; height: 13px; }
-            .lb-vtime { font-size: 9px; min-width: 52px; }
-            .lb-title { font-size: 12px; }
-            .lb-embed-wrap { max-width: 260px; }
-          }
-        `}</style>
+                /* (all existing styles exactly as before) */
+                .reels-filter-row {
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 10px;
+                    margin: 20px 0 28px;
+                }
+                .reels-filter-btn {
+                    padding: 10px 22px;
+                    border-radius: 100px;
+                    border: 1px solid rgba(0,0,0,.1);
+                    background: #fff;
+                    color: #5b5449;
+                    font-size: 13px;
+                    font-weight: 600;
+                    letter-spacing: .04em;
+                    text-transform: uppercase;
+                    cursor: pointer;
+                    box-shadow: 0 1px 3px rgba(0,0,0,.04);
+                    transition: background .25s ease, color .25s ease, border-color .25s ease, transform .15s ease;
+                }
+                .reels-filter-btn:hover {
+                    border-color: rgba(122,36,50,.35);
+                    color: #7a2432;
+                }
+                .reels-filter-btn:active {
+                    transform: scale(.97);
+                }
+                .reels-filter-btn.active {
+                    background: #7a2432;
+                    border-color: #7a2432;
+                    color: #fff;
+                }
+                .reels-strip {
+                    display: flex;
+                    gap: 16px;
+                    overflow-x: auto;
+                    padding: 4px 4px 12px;
+                    scroll-snap-type: x mandatory;
+                    -webkit-overflow-scrolling: touch;
+                }
+                .reels-strip::-webkit-scrollbar { height: 6px; }
+                .reels-strip::-webkit-scrollbar-thumb { background: rgba(185,135,60,.4); border-radius: 4px; }
+                .reels-empty {
+                    padding: 40px 4px;
+                    color: rgba(0,0,0,.4);
+                    font-size: 14px;
+                }
+                .reel-card {
+                    position: relative;
+                    flex: 0 0 220px;
+                    aspect-ratio: 9 / 16;
+                    border-radius: 14px;
+                    overflow: hidden;
+                    cursor: pointer;
+                    background: #1a1a1a;
+                    scroll-snap-align: start;
+                    box-shadow: 0 8px 30px rgba(0,0,0,.12);
+                    transition: transform .3s ease, box-shadow .3s ease;
+                }
+                .reel-card:hover {
+                    transform: translateY(-4px);
+                    box-shadow: 0 16px 48px rgba(0,0,0,.18);
+                }
+                .reel-card img,
+                .reel-card video {
+                    display: block;
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                    transition: transform .5s ease;
+                }
+                .reel-card:hover img,
+                .reel-card:hover video {
+                    transform: scale(1.03);
+                }
+                .reel-card .play-ico {
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    width: 52px;
+                    height: 52px;
+                    border-radius: 50%;
+                    background: rgba(185,135,60,.88);
+                    backdrop-filter: blur(4px);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    color: #fff;
+                    transition: transform .3s ease, background .3s ease;
+                    pointer-events: none;
+                    box-shadow: 0 4px 20px rgba(185,135,60,.35);
+                }
+                .reel-card .play-ico svg {
+                    width: 26px;
+                    height: 26px;
+                    margin-left: 3px;
+                }
+                .reel-card:hover .play-ico {
+                    transform: translate(-50%, -50%) scale(1.08);
+                    background: rgba(185,135,60,1);
+                }
+                /* Keep all lightbox styles and media queries exactly as before */
+                .lightbox-overlay {
+                    position: fixed;
+                    inset: 0;
+                    z-index: 9999;
+                    background: rgba(0,0,0,.88);
+                    backdrop-filter: blur(16px);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    padding: 20px;
+                    animation: lbFadeIn .3s ease;
+                }
+                @keyframes lbFadeIn {
+                    0% { opacity: 0; backdrop-filter: blur(0); }
+                    100% { opacity: 1; backdrop-filter: blur(16px); }
+                }
+                .lb-close {
+                    position: absolute;
+                    top: 20px;
+                    right: 24px;
+                    width: 44px;
+                    height: 44px;
+                    border: none;
+                    border-radius: 50%;
+                    background: rgba(255,255,255,.08);
+                    backdrop-filter: blur(4px);
+                    color: #fff;
+                    cursor: pointer;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    transition: background .25s ease, transform .25s ease;
+                    z-index: 10;
+                }
+                .lb-close:hover {
+                    background: rgba(255,255,255,.18);
+                    transform: rotate(90deg);
+                }
+                .lb-close svg { width: 22px; height: 22px; }
+                .lb-counter {
+                    position: absolute;
+                    top: 24px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    font-size: 13px;
+                    font-weight: 500;
+                    color: rgba(255,255,255,.5);
+                    letter-spacing: .04em;
+                    font-variant-numeric: tabular-nums;
+                    z-index: 10;
+                    background: rgba(0,0,0,.3);
+                    padding: 4px 16px;
+                    border-radius: 100px;
+                    backdrop-filter: blur(4px);
+                }
+                .lb-arrow {
+                    position: absolute;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    width: 48px;
+                    height: 48px;
+                    border: none;
+                    border-radius: 50%;
+                    background: rgba(255,255,255,.06);
+                    backdrop-filter: blur(4px);
+                    color: #fff;
+                    cursor: pointer;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    transition: background .25s ease, transform .25s ease;
+                    z-index: 10;
+                }
+                .lb-arrow:hover {
+                    background: rgba(255,255,255,.14);
+                    transform: translateY(-50%) scale(1.05);
+                }
+                .lb-arrow svg { width: 22px; height: 22px; }
+                .lb-arrow-prev { left: 24px; }
+                .lb-arrow-next { right: 24px; }
+                .lb-content {
+                    position: relative;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    max-width: 90vw;
+                    max-height: 90vh;
+                    width: 100%;
+                    height: 100%;
+                    justify-content: center;
+                }
+                .lb-media-wrap {
+                    position: relative;
+                    width: 100%;
+                    height: calc(100% - 60px);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    transition: opacity .3s ease, transform .3s ease;
+                }
+                .lb-media-wrap.lb-transition {
+                    opacity: 0;
+                    transform: scale(.96);
+                }
+                .lb-video-wrap {
+                    position: relative;
+                    width: 100%;
+                    max-width: 460px;
+                    aspect-ratio: 9 / 16;
+                    background: #000;
+                    border-radius: 10px;
+                    overflow: hidden;
+                    box-shadow: 0 20px 60px rgba(0,0,0,.5);
+                }
+                .lb-video {
+                    width: 100%;
+                    height: 100%;
+                    display: block;
+                    background: #000;
+                    object-fit: cover;
+                }
+                .lb-embed-wrap {
+                    position: relative;
+                    width: 100%;
+                    max-width: 400px;
+                    max-height: 85vh;
+                    overflow-y: auto;
+                    background: #000;
+                    border-radius: 10px;
+                    box-shadow: 0 20px 60px rgba(0,0,0,.5);
+                }
+                .lb-video-controls {
+                    position: absolute;
+                    bottom: 0;
+                    left: 0;
+                    right: 0;
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                    padding: 12px 18px 14px;
+                    background: linear-gradient(0deg, rgba(0,0,0,.7) 0%, transparent 100%);
+                }
+                .lb-vctrl-btn {
+                    flex-shrink: 0;
+                    width: 36px;
+                    height: 36px;
+                    border: none;
+                    border-radius: 50%;
+                    background: rgba(255,255,255,.08);
+                    backdrop-filter: blur(4px);
+                    color: #fff;
+                    cursor: pointer;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    transition: background .2s ease, transform .2s ease;
+                }
+                .lb-vctrl-btn:hover {
+                    background: rgba(255,255,255,.18);
+                    transform: scale(1.06);
+                }
+                .lb-vctrl-btn svg { width: 18px; height: 18px; }
+                .lb-vprogress {
+                    flex: 1;
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                    cursor: pointer;
+                }
+                .lb-vprogress-track {
+                    flex: 1;
+                    height: 4px;
+                    border-radius: 4px;
+                    background: rgba(255,255,255,.2);
+                    position: relative;
+                    transition: height .2s ease;
+                }
+                .lb-vprogress-track:hover { height: 6px; }
+                .lb-vprogress-fill {
+                    height: 100%;
+                    border-radius: 4px;
+                    background: #b8873c;
+                    transition: width .05s linear;
+                }
+                .lb-vtime {
+                    font-size: 12px;
+                    font-weight: 500;
+                    color: rgba(255,255,255,.7);
+                    font-variant-numeric: tabular-nums;
+                    letter-spacing: .02em;
+                    flex-shrink: 0;
+                    min-width: 76px;
+                    text-align: right;
+                }
+                .lb-title {
+                    margin-top: 14px;
+                    font-size: 15px;
+                    font-weight: 500;
+                    color: rgba(255,255,255,.7);
+                    text-align: center;
+                    letter-spacing: .02em;
+                    max-width: 80%;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                }
+                @media (max-width: 768px) {
+                    .reel-card { flex-basis: 160px; }
+                    .reels-filter-btn { padding: 9px 18px; font-size: 12px; }
+                    .lb-arrow { width: 40px; height: 40px; }
+                    .lb-arrow svg { width: 18px; height: 18px; }
+                    .lb-arrow-prev { left: 8px; }
+                    .lb-arrow-next { right: 8px; }
+                    .lb-close { top: 12px; right: 12px; width: 38px; height: 38px; }
+                    .lb-close svg { width: 18px; height: 18px; }
+                    .lb-counter { top: 14px; font-size: 11px; padding: 2px 12px; }
+                    .lb-video-controls { padding: 8px 12px 12px; gap: 8px; }
+                    .lb-vctrl-btn { width: 30px; height: 30px; }
+                    .lb-vctrl-btn svg { width: 15px; height: 15px; }
+                    .lb-vtime { font-size: 10px; min-width: 60px; }
+                    .lb-title { font-size: 13px; margin-top: 10px; max-width: 90%; }
+                    .lb-content { max-width: 96vw; max-height: 94vh; }
+                    .lb-media-wrap { height: calc(100% - 50px); }
+                    .lb-video-wrap { border-radius: 6px; }
+                    .lb-embed-wrap { border-radius: 6px; max-width: 320px; }
+                }
+                @media (max-width: 480px) {
+                    .reel-card { flex-basis: 140px; }
+                    .reels-filter-btn { padding: 8px 15px; font-size: 11px; }
+                    .lb-arrow { width: 32px; height: 32px; }
+                    .lb-arrow svg { width: 14px; height: 14px; }
+                    .lb-arrow-prev { left: 4px; }
+                    .lb-arrow-next { right: 4px; }
+                    .lb-video-controls { padding: 6px 8px 10px; gap: 6px; }
+                    .lb-vctrl-btn { width: 26px; height: 26px; }
+                    .lb-vctrl-btn svg { width: 13px; height: 13px; }
+                    .lb-vtime { font-size: 9px; min-width: 52px; }
+                    .lb-title { font-size: 12px; }
+                    .lb-embed-wrap { max-width: 260px; }
+                }
+            `}</style>
 
             <div className="container-x">
                 <Reveal className="section-head">
                     <div>
                         <span className="eyebrow">Motion</span>
-                        <h2 className="h2">Stories<br />In Motion</h2>
+                        <h2 className="h2">Stories In Motion</h2>
                         <p className="text-soft" style={{ marginTop: 8, maxWidth: 420 }}>
-                            Cinematic reels from real weddings and shoots.
+                            Cinematic reels from real weddings and pre-wedding shoots.
                         </p>
                     </div>
                 </Reveal>
 
-                <div className="reels-strip">
-                    {reels.map((r, i) => (
-                        <div className="reel-card" key={r.title + i} onClick={() => handleOpen(i)}>
-                            <img src={assetUrl(r.poster)} alt={r.title} loading="lazy" />
-
-                            <div className="play-ico">
-                                <svg viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M8 5v14l11-7z" />
-                                </svg>
-                            </div>
-                        </div>
+                <div className="reels-filter-row" role="tablist" aria-label="Reel category">
+                    {TABS.map((tab) => (
+                        <button
+                            key={tab.key}
+                            role="tab"
+                            aria-selected={activeTab === tab.key}
+                            className={`reels-filter-btn ${activeTab === tab.key ? 'active' : ''}`}
+                            onClick={() => handleTabChange(tab.key)}
+                        >
+                            {tab.label}
+                        </button>
                     ))}
                 </div>
+
+                {visibleReels.length === 0 ? (
+                    <p className="reels-empty">No reels in this category yet.</p>
+                ) : (
+                    <div className="reels-strip">
+                        {visibleReels.map((r, i) => (
+                            <div className="reel-card" key={r.title + i} onClick={() => handleOpen(i)}>
+                                {/* Use the new ReelThumb component */}
+                                <ReelThumb poster={r.poster} file={r.file} title={r.title} />
+
+                                <div className="play-ico">
+                                    <svg viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M8 5v14l11-7z" />
+                                    </svg>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
             </div>
 
             {lightboxOpen && (

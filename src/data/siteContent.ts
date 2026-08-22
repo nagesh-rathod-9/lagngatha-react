@@ -27,7 +27,7 @@ export const heroDefaults: HeroData = {
     { src: "img2.jpg", alt: "Couple" },
   ],
   badges: [
-    { top: "2023", bottom: "Since" },
+    { top: "2015", bottom: "Since" },
     { bottom: "Wedding Stories" },
     { bottom: "Premium Studio" },
   ],
@@ -148,65 +148,190 @@ export const galleryCategoryDefaults: GalleryCategory[] = [
 ];
 
 export interface Reel {
+  title: string;
   file: string;
   sub: string;
-  poster: string;
+  poster?: string;
   embedUrl?: string;
+  category: "prewedding" | "WeddingCinematic" | "Reel";
 }
 
 export const reelDefaults: Reel[] = [
   {
-    file: "video/vid1.mp4",
-    sub: "Wedding Highlight",
-    poster: "video/vid1.png",
-  },
-  {
-    file: "video/vid2.mp4",
-    sub: "Pre Wedding",
-    poster: "video/vid2.png",
-  },
-  {
-    file: "video/vid3.mp4",
-    sub: "Cinematic Cut",
-    poster: "video/vid3.png",
-  },
-  {
-    file: "video/vid4.mp4",
-    sub: "Wedding Highlight",
-    poster: "video/vid4.jpg",
-  },
-  {
-    file: "video/vid5.mp4",
-    sub: "Pre Wedding",
-    poster: "video/vid5.png",
-  },
-  {
-    file: "video/vid6.mp4",
-    sub: "Couple",
-    poster: "video/vid6.png",
-  },
-  {
-    file: "video/vid7.mp4",
-    sub: "Cinematic Cut",
-    poster: "video/vid7.png",
-  },
-  {
-    file: "video/vid8.mp4",
-    sub: "Cinematic Cut",
-    poster: "video/vid8.png",
-  },
-  {
+    title: "Cinematic Cut",
     file: "video/vid9.mp4",
     sub: "Cinematic Cut",
     poster: "video/vid9.png",
+    category: "prewedding",
   },
   {
+    title: "Cinematic Cut",
+    file: "video/vid12.mp4",
+    sub: "Cinematic Cut",
+    poster: "video/vid12.png",
+    category: "prewedding",
+  },
+  {
+    title: "Cinematic Cut",
+    file: "video/vid13.mp4",
+    sub: "Cinematic Cut",
+    poster: "video/vid13.png",
+    category: "prewedding",
+  },
+  {
+    title: "Cinematic Cut",
+    file: "video/vid11.mp4",
+    sub: "Cinematic Cut",
+    poster: "video/vid11.png",
+    category: "prewedding",
+  },
+
+  // ======== WEDDING CINEMATIC ========
+  {
+    title: "Cinematic Cut",
+    file: "video/vid19.mp4",
+    sub: "Cinematic Cut",
+    poster: "video/vid19.png",
+    category: "WeddingCinematic",
+  },
+  {
+    title: "Cinematic Cut",
+    file: "video/vid14.mp4",
+    sub: "Cinematic Cut",
+    poster: "video/vid14.png",
+    category: "WeddingCinematic",
+  },
+  {
+    title: "Cinematic Cut",
+    file: "video/vid22.mp4",
+    sub: "Cinematic Cut",
+    poster: "video/vid22.png",
+    category: "WeddingCinematic",
+  },
+  {
+    title: "Cinematic Cut",
+    file: "video/vid27.mp4",
+    sub: "Cinematic Cut",
+    poster: "video/vid27.png",
+    category: "WeddingCinematic",
+  },
+  {
+    title: "Cinematic Cut",
+    file: "video/vid18.mp4",
+    sub: "Cinematic Cut",
+    poster: "video/vid18.png",
+    category: "WeddingCinematic",
+  },
+  {
+    title: "Cinematic Cut",
+    file: "video/vid7.mp4",
+    sub: "Cinematic Cut",
+    poster: "video/vid7.png",
+    category: "WeddingCinematic",
+  },
+  {
+    title: "Cinematic Cut",
+    file: "video/vid8.mp4",
+    sub: "Cinematic Cut",
+    poster: "video/vid8.png",
+    category: "WeddingCinematic",
+  },
+  {
+    title: "Cinematic Cut",
     file: "video/vid10.mp4",
     sub: "Cinematic Cut",
     poster: "video/vid10.png",
+    category: "WeddingCinematic",
+  },
+
+  {
+    title: "Cinematic Cut",
+    file: "video/vid15.mp4",
+    sub: "Cinematic Cut",
+    // poster missing -> auto thumbnail
+    category: "WeddingCinematic",
+  },
+  {
+    title: "Cinematic Cut",
+    file: "video/vid16.mp4",
+    sub: "Cinematic Cut",
+    // poster missing
+    category: "WeddingCinematic",
+  },
+  {
+    title: "Cinematic Cut",
+    file: "video/vid17.mp4",
+    sub: "Cinematic Cut",
+    // poster missing
+    category: "WeddingCinematic",
+  },
+
+  {
+    title: "Cinematic Cut",
+    file: "video/vid20.mp4",
+    sub: "Cinematic Cut",
+    poster: "video/vid20.png",
+    category: "WeddingCinematic",
+  },
+  {
+    title: "Cinematic Cut",
+    file: "video/vid21.mp4",
+    sub: "Cinematic Cut",
+    poster: "video/vid21.png",
+    category: "WeddingCinematic",
+  },
+
+  // ======== REEL ========
+  {
+    title: "Wedding Highlight",
+    file: "video/vid1.mp4",
+    sub: "Wedding Highlight",
+    poster: "video/vid1.png",
+    category: "Reel",
+  },
+  {
+    title: "Pre Wedding",
+    file: "video/vid2.mp4",
+    sub: "Pre Wedding",
+    poster: "video/vid2.png",
+    category: "Reel",
+  },
+  {
+    title: "Cinematic Cut",
+    file: "video/vid3.mp4",
+    sub: "Cinematic Cut",
+    poster: "video/vid3.png",
+    category: "Reel",
+  },
+  {
+    title: "Wedding Highlight",
+    file: "video/vid4.mp4",
+    sub: "Wedding Highlight",
+    poster: "video/vid4.jpg",
+    category: "Reel",
+  },
+  {
+    title: "Pre Wedding",
+    file: "video/vid5.mp4",
+    sub: "Pre Wedding",
+    poster: "video/vid5.png",
+    category: "Reel",
+  },
+  {
+    title: "Couple",
+    file: "video/vid6.mp4",
+    sub: "Couple",
+    poster: "video/vid6.png",
+    category: "Reel",
+  },
+  {
+    title: "Cinematic Cut",
+    file: "video/vid23.mp4",
+    sub: "Cinematic Cut",
+    poster: "video/vid23.png",
+    category: "Reel",
   },
 ];
-
 export interface FeatureItem {
   title: string;
   desc: string;
